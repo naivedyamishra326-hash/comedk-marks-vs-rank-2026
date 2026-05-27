@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMEDK 2026 Marks vs Rank Calculator | Predict Your Rank</title>
+    <meta name="description" content="Predict your COMEDK UGET 2026 rank based on your marks. Uses real 2024 & 2025 data with difficulty-adjusted prediction model for accurate rank estimation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" stroke="url(#logoGrad)" stroke-width="2.5" fill="none"/>
+                        <path d="M12 20 L18 26 L28 14" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#a855f7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>COMEDK 2026</h1>
+                    <span class="logo-subtitle">Marks vs Rank Predictor</span>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge badge-live">
+                    <span class="pulse-dot"></span>
+                    2026 Prediction
+                </span>
+                <span class="badge badge-data">Based on Real Data</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Exam Stats Bar -->
+    <section class="stats-bar">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="statRegistered">1,29,643</span>
+                    <span class="stat-label">Registered</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="statAppeared">~1,10,000 – 1,16,700</span>
+                    <span class="stat-label">Expected Appeared (85–90%)</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-icon difficulty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value difficulty-text">Toughest</span>
+                    <span class="stat-label">Difficulty Level 2026</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">2026 &gt;&gt;&gt; 2024 &gt;&gt;&gt;&gt; 2025</span>
+                    <span class="stat-label">Toughness Order</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Calculator -->
+    <main class="main-content">
+        <section class="calculator-section">
+            <div class="calculator-card" id="calculatorCard">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <h2>Enter Your Marks</h2>
+                    <p>Get your predicted COMEDK 2026 rank instantly</p>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input 
+                            type="number" 
+                            id="marksInput" 
+                            min="0" 
+                            max="180" 
+                            placeholder="Enter marks (0–180)"
+                            autocomplete="off"
+                        >
+                        <span class="input-suffix">/ 180</span>
+                    </div>
+                    <button id="calculateBtn" class="calculate-btn">
+                        <span class="btn-text">Predict Rank</span>
+                        <span class="btn-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Slider -->
+                <div class="slider-wrapper">
+                    <input type="range" id="marksSlider" min="0" max="180" value="90" step="1">
+                    <div class="slider-labels">
+                        <span>0</span>
+                        <span>45</span>
+                        <span>90</span>
+                        <span>135</span>
+                        <span>180</span>
+                    </div>
+                </div>
+
+                <!-- Result Display -->
+                <div class="result-container" id="resultContainer">
+                    <div class="result-grid">
+                        <div class="result-main">
+                            <span class="result-label">Predicted Rank (2026)</span>
+                            <div class="result-rank" id="resultRank">—</div>
+                            <div class="result-range" id="resultRange"></div>
+                        </div>
+                        <div class="result-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Percentile</span>
+                                <span class="detail-value" id="resultPercentile">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">2024 Rank (Ref)</span>
+                                <span class="detail-value" id="result2024">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">2025 Rank (Ref)</span>
+                                <span class="detail-value" id="result2025">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Category</span>
+                                <span class="detail-value" id="resultCategory">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <section class="chart-section">
+            <div class="section-header">
+                <h2>Marks vs Rank Curve</h2>
+                <p>Compare across years — 2024, 2025 & Predicted 2026</p>
+                <div class="chart-legend">
+                    <span class="legend-item legend-2024"><span class="legend-dot"></span>2024 (Tough)</span>
+                    <span class="legend-item legend-2025"><span class="legend-dot"></span>2025 (Easiest)</span>
+                    <span class="legend-item legend-2026"><span class="legend-dot"></span>2026 (Predicted – Toughest)</span>
+                </div>
+            </div>
+            <div class="chart-card">
+                <canvas id="rankChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Data Tables -->
+        <section class="tables-section">
+            <div class="section-header">
+                <h2>Historical Data & Predictions</h2>
+                <p>Actual marks vs rank data from previous years</p>
+            </div>
+            <div class="tabs">
+                <button class="tab active" data-tab="tab2026" id="tab2026Btn">
+                    <span class="tab-dot tab-dot-2026"></span>
+                    2026 Predicted
+                </button>
+                <button class="tab" data-tab="tab2024" id="tab2024Btn">
+                    <span class="tab-dot tab-dot-2024"></span>
+                    2024 Actual
+                </button>
+                <button class="tab" data-tab="tab2025" id="tab2025Btn">
+                    <span class="tab-dot tab-dot-2025"></span>
+                    2025 Actual
+                </button>
+            </div>
+            <div class="table-card">
+                <div class="tab-content active" id="tab2026">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Marks</th>
+                                <th>Predicted Rank</th>
+                                <th>Rank Range</th>
+                                <th>Percentile</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table2026Body"></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="tab2024">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Marks</th>
+                                <th>Rank</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table2024Body"></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="tab2025">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Marks Range</th>
+                                <th>Rank (Session 3)</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table2025Body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Methodology -->
+        <section class="methodology-section">
+            <div class="section-header">
+                <h2>Prediction Methodology</h2>
+                <p>How we calculate the predicted rank for 2026</p>
+            </div>
+            <div class="methodology-grid">
+                <div class="method-card">
+                    <div class="method-icon">📊</div>
+                    <h3>Historical Data</h3>
+                    <p>Uses actual COMEDK 2024 marks-vs-rank data and 2025 session-wise data as reference curves.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">⚡</div>
+                    <h3>Difficulty Adjustment</h3>
+                    <p>2026 is expected to be the toughest year. A marks-shift of ~6 marks is applied relative to 2024, reflecting harder paper.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">👥</div>
+                    <h3>Candidate Scaling</h3>
+                    <p>With 1,29,643 registered candidates (~1,13,000 appeared), ranks are scaled up by ~25% vs 2024 for the larger candidate pool.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">📈</div>
+                    <h3>Interpolation</h3>
+                    <p>Piecewise linear interpolation between reference points ensures smooth and continuous rank prediction across the entire marks range.</p>
+                </div>
+            </div>
+            <div class="disclaimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p><strong>Disclaimer:</strong> This is an estimated prediction based on historical data and expected difficulty trends. Actual ranks may vary. Use this as a reference tool only.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>COMEDK 2026 Marks vs Rank Predictor</p>
+            <p class="footer-sub">Built with data from COMEDK 2024 & 2025 | For reference purposes only</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
