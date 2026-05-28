@@ -117,8 +117,9 @@ function predictRank2026(marks) {
     // Interpolate on 2024 curve
     const baseRank = interpolate(CURVE_2024_EXTENDED, equiv2024Marks);
 
-    // Scale for candidate count
-    let predictedRank = Math.round(baseRank * CANDIDATE_SCALE);
+    // Scale for candidate count + inflation adjustment
+    const INFLATION = 1.12;
+    let predictedRank = Math.round(baseRank * CANDIDATE_SCALE * INFLATION);
 
     // Ensure minimum rank 1
     predictedRank = Math.max(1, predictedRank);
@@ -151,10 +152,10 @@ function getRank2025(marks) {
     return interpolate(CURVE_2025_EXTENDED, marks);
 }
 
-// Generate rank range (±8% uncertainty)
+// Generate rank range (-10% / +18%)
 function getRankRange(rank) {
-    const low = Math.max(1, Math.round(rank * 0.88));
-    const high = Math.round(rank * 1.12);
+    const low = Math.max(1, Math.round(rank * 0.90));
+    const high = Math.round(rank * 1.18);
     return { low, high };
 }
 
