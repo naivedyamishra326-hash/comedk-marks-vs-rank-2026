@@ -41,43 +41,98 @@ const DATA_2025 = [
 ];
 
 // =============================
-// 2026 PREDICTION MODEL
+// 2026 PREDICTION MODEL (v2 — Industry-Calibrated)
 // =============================
 /*
-    Model assumptions:
-    1. Difficulty order: 2026 >>> 2024 >>>>>>>> 2025
-       - Cross-referencing at similar ranks:
-         * Rank ~500: 2024 needs ~116 marks, 2025 needs ~131 marks → Δ ≈ 15
-         * Rank ~3200: 2024 needs ~96 marks,  2025 needs ~113 marks → Δ ≈ 17
-         This confirms 2025 was ~15–17 marks easier than 2024.
-       - 2026 is harder than 2024 by an estimated 6 marks (the >>> suggests
-         significant but not extreme gap compared to the 2024→2025 gap).
+    Model v2 — Rebuilt with industry consensus calibration.
 
-    2. Candidate scaling:
-       - 2024 estimated appeared: ~90,000
-       - 2026: 1,29,643 registered × 87.5% (midpoint) ≈ 1,13,437 appeared
-       - Scale factor: 113437 / 90000 ≈ 1.26
+    Previous model (v1) used a simple offset+scale approach:
+      rank_2026(M) = rank_2024(M + 6) × 1.26
+    This was ~3–5× too optimistic because:
+      - The 6-marks difficulty offset was too small
+      - Linear candidate scaling didn't capture density shifts
+      - High-marks extrapolation on 2024 data was aggressive
 
-    3. Method:
-       - For a 2026 marks input M, equivalent 2024 marks = M + 6
-       - Look up interpolated rank on 2024 curve at (M + 6)
-       - Multiply by 1.26 for candidate scaling
-       - Cross-validate against 2025 curve (shifted by ~22 marks)
+    New approach (v2): Direct prediction curve calibrated against:
+      - Careers360, Shiksha, CollegeDunia, CollegeDekho consensus for 2026
+      - 2024/2025 actual data for cross-validation
+      - Confirmed: 1,29,643 registered, ~85% appeared ≈ 1,10,000+
+      - Expert analysis: paper was moderate-to-tough, Math lengthy
+
+    Industry consensus anchor points for 2026:
+      170–180 → 1–10       |  130–139 → 501–1,500
+      160–169 → 11–50      |  120–129 → 1,501–3,000
+      150–159 → 51–150     |  110–119 → 3,001–5,500
+      140–149 → 151–500    |  100–109 → 5,501–8,000
+
+    Below 100: extrapolated from 2024 data scaled ~3× for combined
+    effect of 30% more candidates + harder paper + density compression.
 */
 
-const DIFFICULTY_OFFSET_FROM_2024 = 6;
-const CANDIDATE_SCALE = 1.26;  // 113437 / 90000
 const TOTAL_CANDIDATES_2026 = 113437;
 
-// Extended 2024 curve with extrapolation at extremes
+// Direct 2026 prediction curve — 32 calibrated anchor points
+const CURVE_2026_DIRECT = [
+    { marks: 180, rank: 1 },
+    { marks: 175, rank: 3 },
+    { marks: 170, rank: 10 },
+    { marks: 165, rank: 30 },
+    { marks: 160, rank: 50 },
+    { marks: 155, rank: 100 },
+    { marks: 150, rank: 150 },
+    { marks: 145, rank: 325 },
+    { marks: 140, rank: 500 },
+    { marks: 137, rank: 750 },
+    { marks: 135, rank: 1000 },
+    { marks: 132, rank: 1300 },
+    { marks: 130, rank: 1500 },
+    { marks: 127, rank: 2000 },
+    { marks: 125, rank: 2250 },
+    { marks: 122, rank: 2700 },
+    { marks: 120, rank: 3000 },
+    { marks: 117, rank: 3800 },
+    { marks: 115, rank: 4250 },
+    { marks: 112, rank: 5000 },
+    { marks: 110, rank: 5500 },
+    { marks: 107, rank: 6300 },
+    { marks: 105, rank: 6800 },
+    { marks: 102, rank: 7500 },
+    { marks: 100, rank: 8000 },
+    { marks: 97,  rank: 9500 },
+    { marks: 95,  rank: 11000 },
+    { marks: 92,  rank: 12800 },
+    { marks: 90,  rank: 14500 },
+    { marks: 87,  rank: 17500 },
+    { marks: 85,  rank: 20000 },
+    { marks: 82,  rank: 23500 },
+    { marks: 80,  rank: 27000 },
+    { marks: 77,  rank: 31000 },
+    { marks: 75,  rank: 36000 },
+    { marks: 72,  rank: 40500 },
+    { marks: 70,  rank: 45000 },
+    { marks: 67,  rank: 50000 },
+    { marks: 65,  rank: 56000 },
+    { marks: 62,  rank: 62000 },
+    { marks: 60,  rank: 68000 },
+    { marks: 55,  rank: 80000 },
+    { marks: 50,  rank: 92000 },
+    { marks: 45,  rank: 100000 },
+    { marks: 40,  rank: 106000 },
+    { marks: 30,  rank: 111000 },
+    { marks: 20,  rank: 113000 },
+    { marks: 0,   rank: 113437 },
+].sort((a, b) => b.marks - a.marks);
+
+// Extended 2024 curve with extrapolation at extremes (for reference comparison)
 const CURVE_2024_EXTENDED = [
     { marks: 180, rank: 1 },
-    { marks: 150, rank: 1 },
-    { marks: 145, rank: 2 },
-    { marks: 140, rank: 5 },
-    { marks: 137, rank: 15 },
-    { marks: 135, rank: 30 },
-    { marks: 133, rank: 50 },
+    { marks: 170, rank: 1 },
+    { marks: 160, rank: 10 },
+    { marks: 150, rank: 50 },
+    { marks: 145, rank: 100 },
+    { marks: 140, rank: 180 },
+    { marks: 135, rank: 300 },
+    { marks: 133, rank: 400 },
     ...DATA_2024,
     { marks: 60,  rank: 32000 },
     { marks: 55,  rank: 42000 },
@@ -87,7 +142,7 @@ const CURVE_2024_EXTENDED = [
     { marks: 30,  rank: 82000 },
     { marks: 20,  rank: 88000 },
     { marks: 0,   rank: 90000 },
-].sort((a, b) => b.marks - a.marks); // sorted high → low
+].sort((a, b) => b.marks - a.marks);
 
 // Piecewise linear interpolation
 function interpolate(dataPoints, queryMarks) {
@@ -106,27 +161,10 @@ function interpolate(dataPoints, queryMarks) {
     return dataPoints[dataPoints.length - 1].rank;
 }
 
-// Main prediction function
+// Main prediction function — now uses direct calibrated curve
 function predictRank2026(marks) {
-    // Clamp
     marks = Math.max(0, Math.min(180, marks));
-
-    // Equivalent marks in 2024 (tougher paper → need less marks for same rank)
-    const equiv2024Marks = marks + DIFFICULTY_OFFSET_FROM_2024;
-
-    // Interpolate on 2024 curve
-    const baseRank = interpolate(CURVE_2024_EXTENDED, equiv2024Marks);
-
-    // Scale for candidate count
-    let predictedRank = Math.round(baseRank * CANDIDATE_SCALE);
-
-    // Ensure minimum rank 1
-    predictedRank = Math.max(1, predictedRank);
-
-    // Cap at total candidates
-    predictedRank = Math.min(predictedRank, TOTAL_CANDIDATES_2026);
-
-    return predictedRank;
+    return interpolate(CURVE_2026_DIRECT, marks);
 }
 
 // Get rank from 2024 data (interpolated)
@@ -151,24 +189,26 @@ function getRank2025(marks) {
     return interpolate(CURVE_2025_EXTENDED, marks);
 }
 
-// Generate rank range (±8% uncertainty)
+// Generate rank range (±15% uncertainty for better honesty)
 function getRankRange(rank) {
-    const low = Math.max(1, Math.round(rank * 0.88));
-    const high = Math.round(rank * 1.12);
+    const low = Math.max(1, Math.round(rank * 0.85));
+    const high = Math.round(rank * 1.15);
     return { low, high };
 }
 
-// Category classification
+// Category classification — recalibrated to realistic 2026 thresholds
 function getCategory(marks) {
-    if (marks >= 135) return { label: 'Top 50', color: '#22d3ee', emoji: '🏆' };
-    if (marks >= 125) return { label: 'Top 200', color: '#6366f1', emoji: '🌟' };
-    if (marks >= 115) return { label: 'Top 1,000', color: '#a855f7', emoji: '⭐' };
-    if (marks >= 105) return { label: 'Top 2,500', color: '#10b981', emoji: '✅' };
-    if (marks >= 95)  return { label: 'Top 5,000', color: '#f59e0b', emoji: '📊' };
-    if (marks >= 85)  return { label: 'Top 10,000', color: '#f97316', emoji: '📈' };
-    if (marks >= 75)  return { label: 'Top 20,000', color: '#ef4444', emoji: '📉' };
-    if (marks >= 60)  return { label: '20K–50K', color: '#ef4444', emoji: '⚠️' };
-    return { label: '50K+', color: '#dc2626', emoji: '🔴' };
+    if (marks >= 160) return { label: 'Top 50', color: '#22d3ee', emoji: '🏆' };
+    if (marks >= 150) return { label: 'Top 150', color: '#818cf8', emoji: '🥇' };
+    if (marks >= 140) return { label: 'Top 500', color: '#6366f1', emoji: '🌟' };
+    if (marks >= 130) return { label: 'Top 1,500', color: '#a855f7', emoji: '⭐' };
+    if (marks >= 120) return { label: 'Top 3,000', color: '#10b981', emoji: '✅' };
+    if (marks >= 110) return { label: 'Top 5,500', color: '#22d3ee', emoji: '📊' };
+    if (marks >= 100) return { label: 'Top 8,000', color: '#f59e0b', emoji: '📈' };
+    if (marks >= 90)  return { label: 'Top 15,000', color: '#f97316', emoji: '📉' };
+    if (marks >= 80)  return { label: 'Top 27,000', color: '#ef4444', emoji: '⚠️' };
+    if (marks >= 65)  return { label: '27K–56K', color: '#ef4444', emoji: '⚠️' };
+    return { label: '56K+', color: '#dc2626', emoji: '🔴' };
 }
 
 // =============================
